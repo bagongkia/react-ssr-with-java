@@ -1,0 +1,39 @@
+plugins {
+    id "com.moowork.node" version "1.1.1"
+}
+
+apply plugin: 'base'
+version '0.0.1'
+
+node {
+    version = '8.4.0'
+    download = true
+}
+
+task delDist(type: Delete) {
+    delete 'dist'
+}
+
+task delPublic(type: Delete) {
+    delete '../server/src/main/resources/public'
+}
+
+task moveDistToPublic(type: Copy) {
+    from 'dist'
+    into '../server/src/main/resources/public'
+    include '**'
+}
+
+task npmRunProd(type: NpmTask) {
+    args = ['run', 'prod']
+}
+
+task npmIns(type: NpmTask) {
+    args = ['install']
+}
+
+npmRunProd.dependsOn(npmIns)
+delPublic.dependsOn(npmRunProd)
+moveDistToPublic.dependsOn(delPublic)
+delDist.dependsOn(moveDistToPublic)
+build.dependsOn(delDist)
